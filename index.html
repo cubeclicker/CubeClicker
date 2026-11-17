@@ -57,7 +57,6 @@
             pointer-events: auto;
         }
 
-        /* Modal specific styles */
         #cheat-modal {
             background-color: rgba(0, 0, 0, 0.8);
             z-index: 100;
@@ -69,12 +68,10 @@
 
     <div id="game-container">
         
-        <!-- RESTART BUTTON (Hidden) -->
         <button id="restart-button" class="fixed top-2 left-2 text-xs font-bold text-red-500 opacity-20 hover:opacity-100 transition-opacity p-2 rounded-lg bg-gray-900/50 z-50 pointer-events-auto" data-confirm="false">
             RESTART
         </button>
 
-        <!-- RANK CARD (TOP-LEFT) -->
         <div class="absolute top-8 left-8 w-64 max-w-full pointer-events-none">
             <div class="counter-card p-4" id="rank-display">
                 <p class="text-sm uppercase text-gray-400">Current Rank</p>
@@ -83,30 +80,24 @@
         </div>
 
         <div id="ui-overlay">
-            <!-- Click Counter Card (STAYS CENTERED AT TOP) -->
             <div class="counter-card" id="click-counter">
                 <p class="text-sm uppercase text-gray-400">Jumps / Clicks</p>
                 <p class="text-5xl font-extrabold text-indigo-400 mt-1">0</p>
             </div>
         </div>
 
-        <!-- ACHIEVEMENTS CARD MOVED TO TOP-RIGHT VIA ABSOLUTE POSITIONING -->
         <div class="absolute top-8 right-8 w-64 max-w-full pointer-events-none">
             <div class="bg-gray-800/80 p-3 rounded-xl border border-gray-700 pointer-events-auto">
                 <h3 class="text-sm font-bold text-gray-300 mb-2 border-b border-gray-700 pb-1">ACHIEVEMENTS PROGRESS</h3>
                 <ul id="achievement-list" class="space-y-3">
-                    <!-- Achievement items will be inserted here by JavaScript -->
                 </ul>
             </div>
         </div>
     </div>
 
-    <!-- Notification Area (for unlocked achievements) -->
     <div id="notification-area" class="fixed bottom-4 right-4 z-50 space-y-2 pointer-events-none">
-        <!-- Notifications appear here -->
     </div>
 
-    <!-- CHEAT CODE MODAL -->
     <div id="cheat-modal" class="fixed inset-0 flex items-center justify-center hidden">
         <div class="bg-gray-800 p-8 rounded-xl shadow-2xl w-96 border-2 border-indigo-500 pointer-events-auto">
             <h2 class="text-2xl font-bold text-white mb-4">Enter Cheat Code</h2>
@@ -119,7 +110,6 @@
             >
         </div>
     </div>
-    <!-- END CHEAT CODE MODAL -->
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -137,7 +127,6 @@
         const cubeBaseY = 0.5;
         const gravityIncreaseFactor = 0.3; 
 
-        // Base camera constants for zoom effect
         const baseCameraZ = 4;
         const baseCameraY = 3;
         const zoomFactor = 2.0; 
@@ -146,13 +135,11 @@
         const clickZImpulse = 0.3; 
         const springBackSpeed = 0.1; 
 
-        // Firebase Globals
         let app, db, auth;
         let userId = null;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
 
-        // UI elements
         const counterElement = document.getElementById('click-counter').querySelector('p.text-5xl');
         const counterCard = document.getElementById('click-counter');
         const gameContainer = document.getElementById('game-container');
@@ -163,7 +150,6 @@
         const cheatInput = document.getElementById('cheat-input'); 
         const restartButton = document.getElementById('restart-button'); 
         
-        // --- RANK DEFINITIONS (UNCHANGED) ---
         const ranks = [
             { clicks: 1, name: 'Recruit' },
             { clicks: 100, name: 'Rookie' },
@@ -186,7 +172,6 @@
             { clicks: 10000, name: 'Death Lord' }
         ];
 
-        // Achievement Definitions (UNCHANGED)
         const achievements = {
             'first_step': { name: 'First Step', clicks: 1, unlocked: false, icon: '⭐' },
             'warmed_up': { name: 'Warmed Up', clicks: 100, unlocked: false, icon: '🔥' },
@@ -205,8 +190,6 @@
             'beat_me': { name: 'Im out of ideas, you beat me', clicks: 15000, unlocked: false, icon: '👑' }
         };
 
-        // --- FIREBASE/FIRESTORE LOGIC ---
-
         function getScoreDocRef(currentUserId) {
             const collectionPath = `/artifacts/${appId}/users/${currentUserId}/game_data`;
             return doc(db, collectionPath, 'clicker_score');
@@ -220,7 +203,7 @@
             app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             auth = getAuth(app);
-            setLogLevel('Debug'); // Enable logging
+            setLogLevel('Debug');
 
             try {
                 if (typeof __initial_auth_token !== 'undefined') {
@@ -249,11 +232,9 @@
                     const data = docSnapshot.data();
                     const savedClicks = data.clicks || 0;
                     
-                    // Only update if the saved score is higher (to load highest score on startup)
                     if (savedClicks > clickCount) {
                         clickCount = savedClicks;
                         counterElement.textContent = clickCount.toLocaleString();
-                        // Re-check everything when loading from persistence
                         for (const key in achievements) {
                             if (clickCount >= achievements[key].clicks) {
                                 achievements[key].unlocked = true;
@@ -264,7 +245,6 @@
                     }
                     console.log("Score loaded/updated from Firestore:", clickCount);
                 } else {
-                    // Document doesn't exist yet, save the initial 0 score
                     saveScore();
                     console.log("No score found. Saving initial document.");
                 }
@@ -279,13 +259,10 @@
                 return;
             }
             const scoreRef = getScoreDocRef(userId);
-            // Save current clickCount
             setDoc(scoreRef, { clicks: clickCount, lastUpdated: new Date() }, { merge: true })
                 .then(() => console.log("Score saved:", clickCount))
                 .catch(error => console.error("Error saving score:", error));
         }
-
-        // --- GAME/UI LOGIC ---
 
         function getRandomColor() {
             const colors = [0x00FFFF, 0xFF00FF, 0xFFFF00, 0x00FF00, 0xFF69B4, 0x8A2BE2]; 
@@ -331,12 +308,10 @@
             gridHelper.position.y = 0.01; 
             scene.add(gridHelper);
 
-            // Initial UI Renders (will be updated by Firestore listener soon after)
             renderAchievements();
             updateRankDisplay(); 
             counterElement.textContent = clickCount.toLocaleString();
 
-            // Event listeners
             window.addEventListener('resize', onWindowResize, false);
             document.addEventListener('keydown', onKeyDown, false); 
             document.addEventListener('keyup', onKeyUp, false); 
@@ -344,27 +319,23 @@
             restartButton.addEventListener('click', restartGame, false);
         }
 
-        // --- RESTART LOGIC ---
-
         function restartGame() {
-            // Use double-click to confirm reset (since alert/confirm is forbidden)
             if (restartButton.dataset.confirm === 'true') {
                 
                 clickCount = 0;
                 isHackrbandActive = false;
                 counterElement.textContent = clickCount.toLocaleString();
                 
-                // Reset achievement state
                 for (const key in achievements) {
                     achievements[key].unlocked = false;
                 }
 
-                saveScore(); // Save the zero score to Firestore
+                saveScore();
                 
                 renderAchievements();
                 updateRankDisplay();
 
-                restartButton.dataset.confirm = 'false'; // Reset confirmation state
+                restartButton.dataset.confirm = 'false';
                 restartButton.textContent = "RESTART";
                 showNotification("Game Reset", "Your clicks have been reset to 0.", 'bg-red-700 text-white');
 
@@ -373,7 +344,6 @@
                 restartButton.textContent = "CLICK AGAIN TO CONFIRM RESET";
                 showNotification("Warning", "Click RESTART again to confirm score wipe.", 'bg-red-500 text-white');
                 
-                // Timeout to revert text if user doesn't confirm
                 setTimeout(() => {
                     if (restartButton.dataset.confirm === 'true') {
                         restartButton.dataset.confirm = 'false';
@@ -382,8 +352,6 @@
                 }, 3000);
             }
         }
-
-        // --- CHEAT MODAL LOGIC (UNCHANGED) ---
 
         function showCheatModal() {
             modal.classList.remove('hidden');
@@ -424,7 +392,6 @@
             }
         }
 
-        // --- RANK LOGIC (UNCHANGED) ---
         function getCurrentRank() {
             let currentRank = ranks[0]; 
             for (let i = 0; i < ranks.length; i++) {
@@ -451,7 +418,6 @@
             }
         }
 
-        // --- ACHIEVEMENT LOGIC (UNCHANGED) ---
         function showNotification(title, message, className = 'bg-yellow-400 text-gray-900') {
             const notification = document.createElement('div');
             notification.className = `${className} p-3 rounded-xl shadow-2xl transition-all duration-300 transform translate-x-full opacity-0 pointer-events-auto min-w-[200px]`;
@@ -631,19 +597,17 @@
 
         function performJumpAction() {
             clickCount++;
-            counterElement.textContent = clickCount.toLocaleString(); // Use toLocaleString for readability
+            counterElement.textContent = clickCount.toLocaleString();
 
             counterCard.style.transform = 'scale(1.1)';
             setTimeout(() => {
                 counterCard.style.transform = 'scale(1.0)';
             }, 100);
 
-            // UI UPDATES & SAVING
             checkAchievements();
             updateRankDisplay(); 
-            saveScore(); // Save score after every click
+            saveScore();
 
-            // 3D PHYSICS/VISUALS
             const newColor = getRandomColor();
             cube.material.color.set(newColor);
             cube.material.emissive.set(newColor); 
