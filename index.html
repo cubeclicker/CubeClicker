@@ -66,421 +66,421 @@
 </head>
 <body>
 
-    <div id="game-container">
-        
-        <button id="restart-button" class="fixed top-2 left-2 text-xs font-bold text-red-500 opacity-20 hover:opacity-100 transition-opacity p-2 rounded-lg bg-gray-900/50 z-50 pointer-events-auto" data-confirm="false">
-            RESTART
-        </button>
+<div id="game-container">
 
-        <div class="absolute top-8 left-8 w-64 max-w-full pointer-events-none">
-            <div class="counter-card p-4" id="rank-display">
-                <p class="text-sm uppercase text-gray-400">Current Rank</p>
-                <p class="text-3xl font-extrabold text-red-400 mt-1" id="current-rank-name">Recruit</p>
-            </div>
-        </div>
+    <button id="restart-button" class="fixed top-2 left-2 text-xs font-bold text-red-500 opacity-20 hover:opacity-100 transition-opacity p-2 rounded-lg bg-gray-900/50 z-50 pointer-events-auto" data-confirm="false">
+        RESTART
+    </button>
 
-        <div id="ui-overlay">
-            <div class="counter-card" id="click-counter">
-                <p class="text-sm uppercase text-gray-400">Jumps / Clicks</p>
-                <p class="text-5xl font-extrabold text-indigo-400 mt-1">0</p>
-            </div>
-        </div>
-
-        <div class="absolute top-8 right-8 w-64 max-w-full pointer-events-none">
-            <div class="bg-gray-800/80 p-3 rounded-xl border border-gray-700 pointer-events-auto">
-                <h3 class="text-sm font-bold text-gray-300 mb-2 border-b border-gray-700 pb-1">ACHIEVEMENTS PROGRESS</h3>
-                <ul id="achievement-list" class="space-y-3">
-                </ul>
-            </div>
+    <div class="absolute top-8 left-8 w-64 max-w-full pointer-events-none">
+        <div class="counter-card p-4" id="rank-display">
+            <p class="text-sm uppercase text-gray-400">Current Rank</p>
+            <p class="text-3xl font-extrabold text-red-400 mt-1" id="current-rank-name">Recruit</p>
         </div>
     </div>
 
-    <div id="notification-area" class="fixed bottom-4 right-4 z-50 space-y-2 pointer-events-none">
+    <div id="ui-overlay">
+        <div class="counter-card" id="click-counter">
+            <p class="text-sm uppercase text-gray-400">Jumps / Clicks</p>
+            <p class="text-5xl font-extrabold text-indigo-400 mt-1">0</p>
+        </div>
     </div>
 
-    <div id="cheat-modal" class="fixed inset-0 flex items-center justify-center hidden">
-        <div class="bg-gray-800 p-8 rounded-xl shadow-2xl w-96 border-2 border-indigo-500 pointer-events-auto">
-            <h2 class="text-2xl font-bold text-white mb-4">Enter Cheat Code</h2>
-            <p class="text-sm text-gray-400 mb-4">Press **Enter** to submit or **Escape** to close.</p>
-            <input 
-                id="cheat-input" 
-                type="text" 
+    <div class="absolute top-8 right-8 w-64 max-w-full pointer-events-none">
+        <div class="bg-gray-800/80 p-3 rounded-xl border border-gray-700 pointer-events-auto">
+            <h3 class="text-sm font-bold text-gray-300 mb-2 border-b border-gray-700 pb-1">ACHIEVEMENTS PROGRESS</h3>
+            <ul id="achievement-list" class="space-y-3">
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div id="notification-area" class="fixed bottom-4 right-4 z-50 space-y-2 pointer-events-none">
+</div>
+
+<div id="cheat-modal" class="fixed inset-0 flex items-center justify-center hidden">
+    <div class="bg-gray-800 p-8 rounded-xl shadow-2xl w-96 border-2 border-indigo-500 pointer-events-auto">
+        <h2 class="text-2xl font-bold text-white mb-4">Enter Cheat Code</h2>
+        <p class="text-sm text-gray-400 mb-4">Press **Enter** to submit or **Escape** to close.</p>
+        <input
+                id="cheat-input"
+                type="text"
                 class="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 placeholder="Type code here"
-            >
-        </div>
+        >
     </div>
+</div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, onSnapshot, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        let scene, camera, renderer, cube, gridHelper, cubeLight;
-        let clickCount = 0;
-        let cubeVelocity = 0;
-        let isSpacebarPressed = false; 
-        let isHackrbandActive = false;
-        const cheatCode = "HACKRBAND";
-        const gravity = -0.005;
-        const jumpForce = 0.1;
-        const cubeBaseY = 0.5;
-        const gravityIncreaseFactor = 0.3; 
+    let scene, camera, renderer, cube, gridHelper, cubeLight;
+    let clickCount = 0;
+    let cubeVelocity = 0;
+    let isSpacebarPressed = false;
+    let isHackrbandActive = false;
+    const cheatCode = "HACKRBAND";
+    const gravity = -0.005;
+    const jumpForce = 0.1;
+    const cubeBaseY = 0.5;
+    const gravityIncreaseFactor = 0.3;
 
-        const baseCameraZ = 4;
-        const baseCameraY = 3;
-        const zoomFactor = 2.0; 
-        let cubeZOffset = 0;
-        let cameraZOffset = 0;
-        const clickZImpulse = 0.3; 
-        const springBackSpeed = 0.1; 
+    const baseCameraZ = 4;
+    const baseCameraY = 3;
+    const zoomFactor = 2.0;
+    let cubeZOffset = 0;
+    let cameraZOffset = 0;
+    const clickZImpulse = 0.3;
+    const springBackSpeed = 0.1;
 
-        let app, db, auth;
-        let userId = null;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+    let app, db, auth;
+    let userId = null;
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
 
-        const counterElement = document.getElementById('click-counter').querySelector('p.text-5xl');
-        const counterCard = document.getElementById('click-counter');
-        const gameContainer = document.getElementById('game-container');
-        const achievementListElement = document.getElementById('achievement-list');
-        const notificationArea = document.getElementById('notification-area');
-        const rankNameElement = document.getElementById('current-rank-name'); 
-        const modal = document.getElementById('cheat-modal'); 
-        const cheatInput = document.getElementById('cheat-input'); 
-        const restartButton = document.getElementById('restart-button'); 
-        
-        const ranks = [
-            { clicks: 1, name: 'Recruit' },
-            { clicks: 100, name: 'Rookie' },
-            { clicks: 200, name: 'Private 2' },
-            { clicks: 400, name: 'Private 1' },
-            { clicks: 800, name: 'Specialist' },
-            { clicks: 1000, name: 'Corporal' },
-            { clicks: 1200, name: 'Captain' },
-            { clicks: 1400, name: 'Major' },
-            { clicks: 1600, name: 'General' },
-            { clicks: 1800, name: 'Advanced' },
-            { clicks: 2000, name: 'Assassin' },
-            { clicks: 3000, name: 'Elite 1' },
-            { clicks: 4000, name: 'Master' },
-            { clicks: 5000, name: 'Legend' },
-            { clicks: 6000, name: 'Vetaren' },
-            { clicks: 7000, name: 'War Lord' },
-            { clicks: 8000, name: 'President' },
-            { clicks: 9000, name: 'King' },
-            { clicks: 10000, name: 'Death Lord' }
-        ];
+    const counterElement = document.getElementById('click-counter').querySelector('p.text-5xl');
+    const counterCard = document.getElementById('click-counter');
+    const gameContainer = document.getElementById('game-container');
+    const achievementListElement = document.getElementById('achievement-list');
+    const notificationArea = document.getElementById('notification-area');
+    const rankNameElement = document.getElementById('current-rank-name');
+    const modal = document.getElementById('cheat-modal');
+    const cheatInput = document.getElementById('cheat-input');
+    const restartButton = document.getElementById('restart-button');
 
-        const achievements = {
-            'first_step': { name: 'First Step', clicks: 1, unlocked: false, icon: '⭐' },
-            'warmed_up': { name: 'Warmed Up', clicks: 100, unlocked: false, icon: '🔥' },
-            'no_pain_no_gain': { name: 'No Pain, No Gain', clicks: 500, unlocked: false, icon: '💪' },
-            'grinding_hard': { name: 'Grinding Hard', clicks: 1000, unlocked: false, icon: '🛠️' },
-            'calm_down': { name: 'Calm Down!', clicks: 1500, unlocked: false, icon: '🧘' },
-            'dented_space_bar': { name: 'Dented Space Bar', clicks: 2000, unlocked: false, icon: '⌨️' },
-            'still_going': { name: 'Still Going', clicks: 2800, unlocked: false, icon: '🏃' },
-            'addicted': { name: 'Addicted', clicks: 3000, unlocked: false, icon: '💉' },
-            'think_money': { name: 'Think of it as money!', clicks: 5000, unlocked: false, icon: '💰' },
-            'not_stopping': { name: 'Not stopping', clicks: 5500, unlocked: false, icon: '🛑' },
-            'why_still_here': { name: 'Why are you still here??', clicks: 6000, unlocked: false, icon: '❓' },
-            'touch_grass': { name: 'Bro touch grass', clicks: 8000, unlocked: false, icon: '🌿' },
-            'getting_paid': { name: 'Are you getting paid for this?', clicks: 9400, unlocked: false, icon: '💸' },
-            'ten_thousand': { name: 'TEN THOUSEND!', clicks: 10000, unlocked: false, icon: '💯' },
-            'beat_me': { name: 'Im out of ideas, you beat me', clicks: 15000, unlocked: false, icon: '👑' }
-        };
+    const ranks = [
+        { clicks: 1, name: 'Recruit' },
+        { clicks: 100, name: 'Rookie' },
+        { clicks: 200, name: 'Private 2' },
+        { clicks: 400, name: 'Private 1' },
+        { clicks: 800, name: 'Specialist' },
+        { clicks: 1000, name: 'Corporal' },
+        { clicks: 1200, name: 'Captain' },
+        { clicks: 1400, name: 'Major' },
+        { clicks: 1600, name: 'General' },
+        { clicks: 1800, name: 'Advanced' },
+        { clicks: 2000, name: 'Assassin' },
+        { clicks: 3000, name: 'Elite 1' },
+        { clicks: 4000, name: 'Master' },
+        { clicks: 5000, name: 'Legend' },
+        { clicks: 6000, name: 'Vetaren' },
+        { clicks: 7000, name: 'War Lord' },
+        { clicks: 8000, name: 'President' },
+        { clicks: 9000, name: 'King' },
+        { clicks: 10000, name: 'Death Lord' }
+    ];
 
-        function getScoreDocRef(currentUserId) {
-            const collectionPath = `/artifacts/${appId}/users/${currentUserId}/game_data`;
-            return doc(db, collectionPath, 'clicker_score');
+    const achievements = {
+        'first_step': { name: 'First Step', clicks: 1, unlocked: false, icon: '⭐' },
+        'warmed_up': { name: 'Warmed Up', clicks: 100, unlocked: false, icon: '🔥' },
+        'no_pain_no_gain': { name: 'No Pain, No Gain', clicks: 500, unlocked: false, icon: '💪' },
+        'grinding_hard': { name: 'Grinding Hard', clicks: 1000, unlocked: false, icon: '🛠️' },
+        'calm_down': { name: 'Calm Down!', clicks: 1500, unlocked: false, icon: '🧘' },
+        'dented_space_bar': { name: 'Dented Space Bar', clicks: 2000, unlocked: false, icon: '⌨️' },
+        'still_going': { name: 'Still Going', clicks: 2800, unlocked: false, icon: '🏃' },
+        'addicted': { name: 'Addicted', clicks: 3000, unlocked: false, icon: '💉' },
+        'think_money': { name: 'Think of it as money!', clicks: 5000, unlocked: false, icon: '💰' },
+        'not_stopping': { name: 'Not stopping', clicks: 5500, unlocked: false, icon: '🛑' },
+        'why_still_here': { name: 'Why are you still here??', clicks: 6000, unlocked: false, icon: '❓' },
+        'touch_grass': { name: 'Bro touch grass', clicks: 8000, unlocked: false, icon: '🌿' },
+        'getting_paid': { name: 'Are you getting paid for this?', clicks: 9400, unlocked: false, icon: '💸' },
+        'ten_thousand': { name: 'TEN THOUSEND!', clicks: 10000, unlocked: false, icon: '💯' },
+        'beat_me': { name: 'Im out of ideas, you beat me', clicks: 15000, unlocked: false, icon: '👑' }
+    };
+
+    function getScoreDocRef(currentUserId) {
+        const collectionPath = `/artifacts/${appId}/users/${currentUserId}/game_data`;
+        return doc(db, collectionPath, 'clicker_score');
+    }
+
+    async function initializeFirestore() {
+        if (!firebaseConfig) {
+            console.error("Firebase config not available. Persistence disabled.");
+            return;
         }
+        app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        auth = getAuth(app);
+        setLogLevel('Debug');
 
-        async function initializeFirestore() {
-            if (!firebaseConfig) {
-                console.error("Firebase config not available. Persistence disabled.");
-                return;
+        try {
+            if (typeof __initial_auth_token !== 'undefined') {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
             }
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-            setLogLevel('Debug');
 
-            try {
-                if (typeof __initial_auth_token !== 'undefined') {
-                    await signInWithCustomToken(auth, __initial_auth_token);
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    userId = user.uid;
+                    startScoreListener(userId);
                 } else {
-                    await signInAnonymously(auth);
+                    console.error("User not signed in.");
                 }
-                
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        startScoreListener(userId);
-                    } else {
-                        console.error("User not signed in.");
-                    }
-                });
-            } catch (error) {
-                console.error("Firebase Auth error:", error);
-            }
+            });
+        } catch (error) {
+            console.error("Firebase Auth error:", error);
         }
+    }
 
-        function startScoreListener(currentUserId) {
-            const scoreRef = getScoreDocRef(currentUserId);
-            onSnapshot(scoreRef, (docSnapshot) => {
-                if (docSnapshot.exists()) {
-                    const data = docSnapshot.data();
-                    const savedClicks = data.clicks || 0;
-                    
-                    if (savedClicks > clickCount) {
-                        clickCount = savedClicks;
-                        counterElement.textContent = clickCount.toLocaleString();
-                        for (const key in achievements) {
-                            if (clickCount >= achievements[key].clicks) {
-                                achievements[key].unlocked = true;
-                            }
+    function startScoreListener(currentUserId) {
+        const scoreRef = getScoreDocRef(currentUserId);
+        onSnapshot(scoreRef, (docSnapshot) => {
+            if (docSnapshot.exists()) {
+                const data = docSnapshot.data();
+                const savedClicks = data.clicks || 0;
+
+                if (savedClicks > clickCount) {
+                    clickCount = savedClicks;
+                    counterElement.textContent = clickCount.toLocaleString();
+                    for (const key in achievements) {
+                        if (clickCount >= achievements[key].clicks) {
+                            achievements[key].unlocked = true;
                         }
-                        renderAchievements();
-                        updateRankDisplay();
                     }
-                    console.log("Score loaded/updated from Firestore:", clickCount);
-                } else {
-                    saveScore();
-                    console.log("No score found. Saving initial document.");
+                    renderAchievements();
+                    updateRankDisplay();
                 }
-            }, (error) => {
-                console.error("Error listening to score:", error);
-            });
-        }
-
-        function saveScore() {
-            if (!db || !userId) {
-                console.error("Firestore not ready. Cannot save score.");
-                return;
+                console.log("Score loaded/updated from Firestore:", clickCount);
+            } else {
+                saveScore();
+                console.log("No score found. Saving initial document.");
             }
-            const scoreRef = getScoreDocRef(userId);
-            setDoc(scoreRef, { clicks: clickCount, lastUpdated: new Date() }, { merge: true })
-                .then(() => console.log("Score saved:", clickCount))
-                .catch(error => console.error("Error saving score:", error));
+        }, (error) => {
+            console.error("Error listening to score:", error);
+        });
+    }
+
+    function saveScore() {
+        if (!db || !userId) {
+            console.error("Firestore not ready. Cannot save score.");
+            return;
         }
+        const scoreRef = getScoreDocRef(userId);
+        setDoc(scoreRef, { clicks: clickCount, lastUpdated: new Date() }, { merge: true })
+            .then(() => console.log("Score saved:", clickCount))
+            .catch(error => console.error("Error saving score:", error));
+    }
 
-        function getRandomColor() {
-            const colors = [0x00FFFF, 0xFF00FF, 0xFFFF00, 0x00FF00, 0xFF69B4, 0x8A2BE2]; 
-            return colors[Math.floor(Math.random() * colors.length)];
-        }
+    function getRandomColor() {
+        const colors = [0x00FFFF, 0xFF00FF, 0xFFFF00, 0x00FF00, 0xFF69B4, 0x8A2BE2];
+        return colors[Math.floor(Math.random() * colors.length)];
+    }
 
-        function init() {
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x0a0a1a); 
+    function init() {
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x0a0a1a);
 
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
-            camera.position.set(0, baseCameraY, baseCameraZ);
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, baseCameraY, baseCameraZ);
 
-            renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
-            gameContainer.appendChild(renderer.domElement);
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        gameContainer.appendChild(renderer.domElement);
 
-            const ambientLight = new THREE.AmbientLight(0x404040, 0.5); 
-            scene.add(ambientLight);
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+        scene.add(ambientLight);
 
-            const geometry = new THREE.BoxGeometry(1, 1, 1);
-            const initialColor = getRandomColor(); 
-            
-            const material = new THREE.MeshLambertMaterial({ 
-                color: initialColor, 
-                emissive: initialColor, 
-                emissiveIntensity: 0.8
-            });
-            cube = new THREE.Mesh(geometry, material);
-            cube.position.y = cubeBaseY;
-            scene.add(cube);
+        const geometry = new THREE.BoxGeometry(1, 1, 1);
+        const initialColor = getRandomColor();
 
-            cubeLight = new THREE.PointLight(initialColor, 1.5, 5); 
-            cubeLight.position.set(0, cubeBaseY + 0.5, 0);
-            cube.add(cubeLight); 
+        const material = new THREE.MeshLambertMaterial({
+            color: initialColor,
+            emissive: initialColor,
+            emissiveIntensity: 0.8
+        });
+        cube = new THREE.Mesh(geometry, material);
+        cube.position.y = cubeBaseY;
+        scene.add(cube);
 
-            const size = 20;
-            const divisions = 20;
-            gridHelper = new THREE.GridHelper(size, divisions, 0x00aaff, 0x00aaff); 
-            gridHelper.material.opacity = 0.6;
-            gridHelper.material.transparent = true;
-            gridHelper.position.y = 0.01; 
-            scene.add(gridHelper);
+        cubeLight = new THREE.PointLight(initialColor, 1.5, 5);
+        cubeLight.position.set(0, cubeBaseY + 0.5, 0);
+        cube.add(cubeLight);
 
-            renderAchievements();
-            updateRankDisplay(); 
+        const size = 20;
+        const divisions = 20;
+        gridHelper = new THREE.GridHelper(size, divisions, 0x00aaff, 0x00aaff);
+        gridHelper.material.opacity = 0.6;
+        gridHelper.material.transparent = true;
+        gridHelper.position.y = 0.01;
+        scene.add(gridHelper);
+
+        renderAchievements();
+        updateRankDisplay();
+        counterElement.textContent = clickCount.toLocaleString();
+
+        window.addEventListener('resize', onWindowResize, false);
+        document.addEventListener('keydown', onKeyDown, false);
+        document.addEventListener('keyup', onKeyUp, false);
+        gameContainer.addEventListener('click', performJumpAction, false);
+        restartButton.addEventListener('click', restartGame, false);
+    }
+
+    function restartGame() {
+        if (restartButton.dataset.confirm === 'true') {
+
+            clickCount = 0;
+            isHackrbandActive = false;
             counterElement.textContent = clickCount.toLocaleString();
 
-            window.addEventListener('resize', onWindowResize, false);
-            document.addEventListener('keydown', onKeyDown, false); 
-            document.addEventListener('keyup', onKeyUp, false); 
-            gameContainer.addEventListener('click', performJumpAction, false);
-            restartButton.addEventListener('click', restartGame, false);
-        }
+            for (const key in achievements) {
+                achievements[key].unlocked = false;
+            }
 
-        function restartGame() {
-            if (restartButton.dataset.confirm === 'true') {
-                
-                clickCount = 0;
-                isHackrbandActive = false;
-                counterElement.textContent = clickCount.toLocaleString();
-                
-                for (const key in achievements) {
-                    achievements[key].unlocked = false;
+            saveScore();
+
+            renderAchievements();
+            updateRankDisplay();
+
+            restartButton.dataset.confirm = 'false';
+            restartButton.textContent = "RESTART";
+            showNotification("Game Reset", "Your clicks have been reset to 0.", 'bg-red-700 text-white');
+
+        } else {
+            restartButton.dataset.confirm = 'true';
+            restartButton.textContent = "CLICK AGAIN TO CONFIRM RESET";
+            showNotification("Warning", "Click RESTART again to confirm score wipe.", 'bg-red-500 text-white');
+
+            setTimeout(() => {
+                if (restartButton.dataset.confirm === 'true') {
+                    restartButton.dataset.confirm = 'false';
+                    restartButton.textContent = "RESTART";
                 }
-
-                saveScore();
-                
-                renderAchievements();
-                updateRankDisplay();
-
-                restartButton.dataset.confirm = 'false';
-                restartButton.textContent = "RESTART";
-                showNotification("Game Reset", "Your clicks have been reset to 0.", 'bg-red-700 text-white');
-
-            } else {
-                restartButton.dataset.confirm = 'true';
-                restartButton.textContent = "CLICK AGAIN TO CONFIRM RESET";
-                showNotification("Warning", "Click RESTART again to confirm score wipe.", 'bg-red-500 text-white');
-                
-                setTimeout(() => {
-                    if (restartButton.dataset.confirm === 'true') {
-                        restartButton.dataset.confirm = 'false';
-                        restartButton.textContent = "RESTART";
-                    }
-                }, 3000);
-            }
+            }, 3000);
         }
+    }
 
-        function showCheatModal() {
-            modal.classList.remove('hidden');
-            cheatInput.value = '';
-            cheatInput.focus();
-            
-            document.removeEventListener('keydown', onKeyDown, false);
-            document.addEventListener('keydown', handleModalInput, false);
+    function showCheatModal() {
+        modal.classList.remove('hidden');
+        cheatInput.value = '';
+        cheatInput.focus();
+
+        document.removeEventListener('keydown', onKeyDown, false);
+        document.addEventListener('keydown', handleModalInput, false);
+    }
+
+    function hideCheatModal() {
+        modal.classList.add('hidden');
+
+        document.removeEventListener('keydown', handleModalInput, false);
+        document.addEventListener('keydown', onKeyDown, false);
+    }
+
+    function checkCheatCode() {
+        const input = cheatInput.value.trim().toUpperCase();
+
+        if (input === cheatCode) {
+            isHackrbandActive = true;
+            showNotification("Cheat Activated", "Hold Spacebar for infinite clicks!", 'bg-green-500 text-white');
+            updateRankDisplay();
+        } else {
+            showNotification("Invalid Code", "Try again or press Escape to close.", 'bg-red-500 text-white');
         }
+        hideCheatModal();
+    }
 
-        function hideCheatModal() {
-            modal.classList.add('hidden');
-            
-            document.removeEventListener('keydown', handleModalInput, false);
-            document.addEventListener('keydown', onKeyDown, false);
-        }
-
-        function checkCheatCode() {
-            const input = cheatInput.value.trim().toUpperCase();
-            
-            if (input === cheatCode) {
-                isHackrbandActive = true;
-                showNotification("Cheat Activated", "Hold Spacebar for infinite clicks!", 'bg-green-500 text-white');
-                updateRankDisplay();
-            } else {
-                showNotification("Invalid Code", "Try again or press Escape to close.", 'bg-red-500 text-white');
-            }
+    function handleModalInput(event) {
+        if (event.code === 'Enter') {
+            event.preventDefault();
+            checkCheatCode();
+        } else if (event.code === 'Escape') {
+            event.preventDefault();
             hideCheatModal();
         }
-        
-        function handleModalInput(event) {
-            if (event.code === 'Enter') {
-                event.preventDefault();
-                checkCheatCode();
-            } else if (event.code === 'Escape') {
-                event.preventDefault();
-                hideCheatModal();
-            }
-        }
+    }
 
-        function getCurrentRank() {
-            let currentRank = ranks[0]; 
-            for (let i = 0; i < ranks.length; i++) {
-                if (clickCount >= ranks[i].clicks) {
-                    currentRank = ranks[i];
-                } else {
-                    break; 
-                }
-            }
-            return currentRank;
-        }
-
-        function updateRankDisplay() {
-            const rank = getCurrentRank();
-            rankNameElement.textContent = rank.name;
-
-            if (isHackrbandActive) {
-                rankNameElement.textContent += " (HACKED)";
-                rankNameElement.classList.remove('text-red-400');
-                rankNameElement.classList.add('text-yellow-400', 'animate-pulse');
+    function getCurrentRank() {
+        let currentRank = ranks[0];
+        for (let i = 0; i < ranks.length; i++) {
+            if (clickCount >= ranks[i].clicks) {
+                currentRank = ranks[i];
             } else {
-                rankNameElement.classList.add('text-red-400');
-                rankNameElement.classList.remove('text-yellow-400', 'animate-pulse');
+                break;
+            }
+        }
+        return currentRank;
+    }
+
+    function updateRankDisplay() {
+        const rank = getCurrentRank();
+        rankNameElement.textContent = rank.name;
+
+        if (isHackrbandActive) {
+            rankNameElement.textContent += " (HACKED)";
+            rankNameElement.classList.remove('text-red-400');
+            rankNameElement.classList.add('text-yellow-400', 'animate-pulse');
+        } else {
+            rankNameElement.classList.add('text-red-400');
+            rankNameElement.classList.remove('text-yellow-400', 'animate-pulse');
+        }
+    }
+
+    function showNotification(title, message, className = 'bg-yellow-400 text-gray-900') {
+        const notification = document.createElement('div');
+        notification.className = `${className} p-3 rounded-xl shadow-2xl transition-all duration-300 transform translate-x-full opacity-0 pointer-events-auto min-w-[200px]`;
+        notification.innerHTML = `<span class="font-extrabold">${title}</span><br>${message}`;
+        notificationArea.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+            notification.style.opacity = '1';
+        }, 10);
+
+        setTimeout(() => {
+            notification.style.transform = 'translateX(100%)';
+            notification.style.opacity = '0';
+            setTimeout(() => notification.remove(), 500);
+        }, 4000);
+    }
+
+    function renderAchievements() {
+        achievementListElement.innerHTML = '';
+
+        const allAchievements = Object.values(achievements).sort((a, b) => a.clicks - b.clicks);
+
+        let lastAchieved = { name: 'None', clicks: 0, icon: '➖', status: 'Achieved' };
+        let upcoming = null;
+        let upcomingAfter = null;
+
+        for (const ach of allAchievements) {
+            if (ach.unlocked) {
+                lastAchieved = { ...ach, status: 'Achieved' };
+            } else if (!upcoming) {
+                upcoming = { ...ach, status: 'Upcoming' };
+            } else if (!upcomingAfter) {
+                upcomingAfter = { ...ach, status: 'Next Goal' };
+                break;
             }
         }
 
-        function showNotification(title, message, className = 'bg-yellow-400 text-gray-900') {
-            const notification = document.createElement('div');
-            notification.className = `${className} p-3 rounded-xl shadow-2xl transition-all duration-300 transform translate-x-full opacity-0 pointer-events-auto min-w-[200px]`;
-            notification.innerHTML = `<span class="font-extrabold">${title}</span><br>${message}`;
-            notificationArea.appendChild(notification);
+        const defaultNext = { name: 'Maxed Out', clicks: 'N/A', icon: '👑', status: 'Maxed' };
 
-            setTimeout(() => {
-                notification.style.transform = 'translateX(0)';
-                notification.style.opacity = '1';
-            }, 10);
+        const displaySlots = [
+            { title: "Already Achieved", item: lastAchieved, color: 'text-green-400' },
+            { title: "Upcoming", item: upcoming || defaultNext, color: 'text-indigo-400' },
+            { title: "Upcoming after", item: upcomingAfter || defaultNext, color: 'text-yellow-400' }
+        ];
 
-            setTimeout(() => {
-                notification.style.transform = 'translateX(100%)';
-                notification.style.opacity = '0';
-                setTimeout(() => notification.remove(), 500);
-            }, 4000); 
-        }
+        displaySlots.forEach(slot => {
+            const li = document.createElement('li');
 
-        function renderAchievements() {
-            achievementListElement.innerHTML = ''; 
-
-            const allAchievements = Object.values(achievements).sort((a, b) => a.clicks - b.clicks);
-
-            let lastAchieved = { name: 'None', clicks: 0, icon: '➖', status: 'Achieved' };
-            let upcoming = null;
-            let upcomingAfter = null;
-            
-            for (const ach of allAchievements) {
-                if (ach.unlocked) {
-                    lastAchieved = { ...ach, status: 'Achieved' };
-                } else if (!upcoming) {
-                    upcoming = { ...ach, status: 'Upcoming' };
-                } else if (!upcomingAfter) {
-                    upcomingAfter = { ...ach, status: 'Next Goal' };
-                    break; 
-                }
+            let progressDisplay;
+            if (slot.item.status === 'Achieved') {
+                progressDisplay = slot.item.clicks.toLocaleString() + ' Clicks';
+            } else if (slot.item.clicks === 'N/A') {
+                progressDisplay = 'N/A';
+            } else if (slot.title === 'Upcoming' && typeof slot.item.clicks === 'number') {
+                const needed = slot.item.clicks - clickCount;
+                progressDisplay = `${needed.toLocaleString()} needed`;
+            } else {
+                progressDisplay = slot.item.clicks.toLocaleString() + ' total';
             }
 
-            const defaultNext = { name: 'Maxed Out', clicks: 'N/A', icon: '👑', status: 'Maxed' };
-
-            const displaySlots = [
-                { title: "Already Achieved", item: lastAchieved, color: 'text-green-400' },
-                { title: "Upcoming", item: upcoming || defaultNext, color: 'text-indigo-400' },
-                { title: "Upcoming after", item: upcomingAfter || defaultNext, color: 'text-yellow-400' }
-            ];
-
-            displaySlots.forEach(slot => {
-                const li = document.createElement('li');
-                
-                let progressDisplay;
-                if (slot.item.status === 'Achieved') {
-                    progressDisplay = slot.item.clicks.toLocaleString() + ' Clicks';
-                } else if (slot.item.clicks === 'N/A') {
-                    progressDisplay = 'N/A';
-                } else if (slot.title === 'Upcoming' && typeof slot.item.clicks === 'number') {
-                    const needed = slot.item.clicks - clickCount;
-                    progressDisplay = `${needed.toLocaleString()} needed`;
-                } else {
-                    progressDisplay = slot.item.clicks.toLocaleString() + ' total';
-                }
-
-                li.className = `flex flex-col text-xs p-2 rounded-lg border border-gray-600/50 bg-gray-700/50`;
-                li.innerHTML = `
+            li.className = `flex flex-col text-xs p-2 rounded-lg border border-gray-600/50 bg-gray-700/50`;
+            li.innerHTML = `
                     <div class="flex justify-between items-center mb-1 border-b border-gray-600/30 pb-1">
                         <span class="font-bold text-gray-300 uppercase text-[10px]">${slot.title}</span>
                         <span class="text-xs ${slot.color}">${slot.item.status}</span>
@@ -490,141 +490,141 @@
                         <span class="text-sm font-bold text-white">${progressDisplay}</span>
                     </div>
                 `;
-                achievementListElement.appendChild(li);
-            });
-        }
+            achievementListElement.appendChild(li);
+        });
+    }
 
-        function checkAchievements() {
-            let unlockedNew = false;
-            for (const key in achievements) {
-                const ach = achievements[key];
-                if (!ach.unlocked && clickCount >= ach.clicks) {
-                    ach.unlocked = true;
-                    showNotification(`${ach.icon} ACHIEVEMENT UNLOCKED!`, ach.name);
-                    unlockedNew = true;
-                }
-            }
-            if (unlockedNew) renderAchievements();
-        }
-
-        function animate() {
-            requestAnimationFrame(animate);
-
-            cube.position.z = cubeZOffset;
-            cubeLight.position.z = cube.position.z; 
-
-            if (cube.position.y > cubeBaseY || cubeVelocity > 0) {
-                cube.position.y += cubeVelocity;
-                cubeLight.position.y = cube.position.y + 0.5;
-
-                const heightOffset = cube.position.y - cubeBaseY; 
-                const gravityFactor = 1 + heightOffset * gravityIncreaseFactor;
-                const dynamicGravity = gravity * gravityFactor;
-
-                cubeVelocity += dynamicGravity;
-
-                if (cube.position.y < cubeBaseY) {
-                    cube.position.y = cubeBaseY;
-                    cubeVelocity = 0;
-                    cubeLight.position.y = cubeBaseY + 0.5; 
-                }
-                
-                const zoomOffset = heightOffset * zoomFactor; 
-                const followY = heightOffset * 0.5; 
-
-                camera.position.z = baseCameraZ + zoomOffset + cameraZOffset;
-                camera.position.y = baseCameraY + followY;
-
-            } else {
-                camera.position.z = baseCameraZ + cameraZOffset;
-                camera.position.y = baseCameraY;
-            }
-
-            if (cube.position.y > cubeBaseY) {
-                cube.rotation.x += 0.02;
-                cube.rotation.y += 0.03;
-            } else {
-                 cube.rotation.set(0, 0, 0);
-            }
-            
-            camera.lookAt(cube.position);
-
-            renderer.render(scene, camera);
-
-            if (cubeZOffset !== 0) {
-                cubeZOffset -= cubeZOffset * springBackSpeed;
-                if (Math.abs(cubeZOffset) < 0.01) cubeZOffset = 0;
-            }
-
-            if (cameraZOffset !== 0) {
-                cameraZOffset -= cameraZOffset * springBackSpeed;
-                if (Math.abs(cameraZOffset) < 0.01) cameraZOffset = 0;
+    function checkAchievements() {
+        let unlockedNew = false;
+        for (const key in achievements) {
+            const ach = achievements[key];
+            if (!ach.unlocked && clickCount >= ach.clicks) {
+                ach.unlocked = true;
+                showNotification(`${ach.icon} ACHIEVEMENT UNLOCKED!`, ach.name);
+                unlockedNew = true;
             }
         }
+        if (unlockedNew) renderAchievements();
+    }
 
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }
+    function animate() {
+        requestAnimationFrame(animate);
 
-        function onKeyDown(event) {
-            if (event.code === 'Enter') {
-                event.preventDefault();
-                showCheatModal();
-                return; 
+        cube.position.z = cubeZOffset;
+        cubeLight.position.z = cube.position.z;
+
+        if (cube.position.y > cubeBaseY || cubeVelocity > 0) {
+            cube.position.y += cubeVelocity;
+            cubeLight.position.y = cube.position.y + 0.5;
+
+            const heightOffset = cube.position.y - cubeBaseY;
+            const gravityFactor = 1 + heightOffset * gravityIncreaseFactor;
+            const dynamicGravity = gravity * gravityFactor;
+
+            cubeVelocity += dynamicGravity;
+
+            if (cube.position.y < cubeBaseY) {
+                cube.position.y = cubeBaseY;
+                cubeVelocity = 0;
+                cubeLight.position.y = cubeBaseY + 0.5;
             }
 
-            if (event.code === 'Space' || event.keyCode === 32) {
-                event.preventDefault();
-                
-                if (isHackrbandActive) {
-                    performJumpAction();
-                } else if (!isSpacebarPressed) {
-                    isSpacebarPressed = true; 
-                    performJumpAction();
-                }
+            const zoomOffset = heightOffset * zoomFactor;
+            const followY = heightOffset * 0.5;
+
+            camera.position.z = baseCameraZ + zoomOffset + cameraZOffset;
+            camera.position.y = baseCameraY + followY;
+
+        } else {
+            camera.position.z = baseCameraZ + cameraZOffset;
+            camera.position.y = baseCameraY;
+        }
+
+        if (cube.position.y > cubeBaseY) {
+            cube.rotation.x += 0.02;
+            cube.rotation.y += 0.03;
+        } else {
+            cube.rotation.set(0, 0, 0);
+        }
+
+        camera.lookAt(cube.position);
+
+        renderer.render(scene, camera);
+
+        if (cubeZOffset !== 0) {
+            cubeZOffset -= cubeZOffset * springBackSpeed;
+            if (Math.abs(cubeZOffset) < 0.01) cubeZOffset = 0;
+        }
+
+        if (cameraZOffset !== 0) {
+            cameraZOffset -= cameraZOffset * springBackSpeed;
+            if (Math.abs(cameraZOffset) < 0.01) cameraZOffset = 0;
+        }
+    }
+
+    function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    function onKeyDown(event) {
+        if (event.code === 'Enter') {
+            event.preventDefault();
+            showCheatModal();
+            return;
+        }
+
+        if (event.code === 'Space' || event.keyCode === 32) {
+            event.preventDefault();
+
+            if (isHackrbandActive) {
+                performJumpAction();
+            } else if (!isSpacebarPressed) {
+                isSpacebarPressed = true;
+                performJumpAction();
             }
         }
+    }
 
-        function onKeyUp(event) {
-            if (event.code === 'Space' || event.keyCode === 32) {
-                if (!isHackrbandActive) {
-                    isSpacebarPressed = false; 
-                }
+    function onKeyUp(event) {
+        if (event.code === 'Space' || event.keyCode === 32) {
+            if (!isHackrbandActive) {
+                isSpacebarPressed = false;
             }
         }
+    }
 
-        function performJumpAction() {
-            clickCount++;
-            counterElement.textContent = clickCount.toLocaleString();
+    function performJumpAction() {
+        clickCount++;
+        counterElement.textContent = clickCount.toLocaleString();
 
-            counterCard.style.transform = 'scale(1.1)';
-            setTimeout(() => {
-                counterCard.style.transform = 'scale(1.0)';
-            }, 100);
+        counterCard.style.transform = 'scale(1.1)';
+        setTimeout(() => {
+            counterCard.style.transform = 'scale(1.0)';
+        }, 100);
 
-            checkAchievements();
-            updateRankDisplay(); 
-            saveScore();
+        checkAchievements();
+        updateRankDisplay();
+        saveScore();
 
-            const newColor = getRandomColor();
-            cube.material.color.set(newColor);
-            cube.material.emissive.set(newColor); 
-            cubeLight.color.set(newColor); 
+        const newColor = getRandomColor();
+        cube.material.color.set(newColor);
+        cube.material.emissive.set(newColor);
+        cubeLight.color.set(newColor);
 
-            cubeVelocity = jumpForce;
-            cubeZOffset = -clickZImpulse;
-            cameraZOffset = clickZImpulse;
-        }
+        cubeVelocity = jumpForce;
+        cubeZOffset = -clickZImpulse;
+        cameraZOffset = clickZImpulse;
+    }
 
 
-        window.onload = function () {
-            initializeFirestore();
-            init();
-            animate();
-        };
+    window.onload = function () {
+        initializeFirestore();
+        init();
+        animate();
+    };
 
-    </script>
+</script>
 </body>
 </html>
